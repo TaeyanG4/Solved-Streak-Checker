@@ -10,17 +10,17 @@ const STORAGE_LOCAL_KEYS = ['lastStreakStatus', 'lastStreakCount', 'lastCheckTim
 
 // --- HTML 요소 참조 ---
 // 자주 사용되는 DOM 요소들을 미리 찾아 변수에 할당합니다.
-const statusDisplay = document.getElementById('statusDisplay');         // 상태 메시지 전체 영역
-const statusIcon = statusDisplay.querySelector('.icon');                // 상태 아이콘 (이모지)
-const statusText = statusDisplay.querySelector('.text');                // 상태 텍스트 메시지
+const statusDisplay = document.getElementById('statusDisplay');       // 상태 메시지 전체 영역
+const statusIcon = statusDisplay.querySelector('.icon');            // 상태 아이콘 (이모지)
+const statusText = statusDisplay.querySelector('.text');            // 상태 텍스트 메시지
 const streakCountDisplay = document.getElementById('streakCountDisplay'); // 현재 스트릭 일수 표시 영역
 const lastCheckedDisplay = document.getElementById('lastCheckedDisplay'); // 마지막 확인 시간 표시 영역
-const usernameInput = document.getElementById('usernameInput');         // 사용자명 입력 필드
-const intervalInput = document.getElementById('intervalInput');         // 알림 주기 입력 필드
+const usernameInput = document.getElementById('usernameInput');       // 사용자명 입력 필드
+const intervalInput = document.getElementById('intervalInput');       // 알림 주기 입력 필드
 const notifyNotSolvedCheckbox = document.getElementById('notifyNotSolved'); // '미해결 시 알림' 체크박스
 const notifyUnknownCheckbox = document.getElementById('notifyUnknown');   // '상태 모름 시 알림' 체크박스
 const saveButton = document.getElementById('saveButton');             // 설정 저장 버튼
-const saveStatusDiv = document.getElementById('saveStatus');            // 저장 결과 메시지 표시 영역
+const saveStatusDiv = document.getElementById('saveStatus');          // 저장 결과 메시지 표시 영역
 const refreshButton = document.getElementById('refreshButton');         // 상태 새로고침 버튼
 const profileLinkButton = document.getElementById('profileLinkButton');   // 프로필 바로가기 버튼
 
@@ -222,14 +222,25 @@ saveButton.addEventListener('click', async () => {
     saveStatusDiv.textContent = '설정이 저장되었습니다!';
     saveStatusDiv.style.color = 'green'; // 성공 메시지는 녹색
 
+    // <<<--- 설정 저장 직후 (데스크톱) 알림 확인 요청 --- >>>
+    try {
+        console.log("팝업: 설정 저장 후 백그라운드에 즉시 (데스크톱)알림 확인 요청 전송");
+        // 백그라운드 스크립트에 메시지를 보내 알림 조건을 즉시 확인하도록 요청
+        await chrome.runtime.sendMessage({ type: "checkNotificationOnSave" });
+    } catch (error) {
+        console.error("팝업: 백그라운드에 알림 확인 요청 실패:", error);
+        // 백그라운드 통신 실패는 치명적이지 않으므로 계속 진행
+    }
+    // <<<------------------------------------------ >>>
+
     // 7. UI 즉시 업데이트 (사용자 경험 개선)
     // 저장된 사용자명과 '상태 모름'으로 상태 표시 영역을 업데이트합니다.
     // background.js나 content.js에서 새로운 상태를 가져오기 전까지 임시 상태를 보여줍니다.
     updateDisplay({
-      targetUsername: username,     // 방금 저장한 사용자명
-      lastStreakStatus: null,       // 상태는 아직 모르므로 null
-      lastStreakCount: null,        // 스트릭 수도 아직 모르므로 null
-      lastCheckTimestamp: null    // 마지막 확인 시각도 리셋 (혹은 Date.now() 사용 가능)
+      targetUsername: username,      // 방금 저장한 사용자명
+      lastStreakStatus: null,        // 상태는 아직 모르므로 null
+      lastStreakCount: null,         // 스트릭 수도 아직 모르므로 null
+      lastCheckTimestamp: null       // 마지막 확인 시각도 리셋
     });
 
   } catch (error) {

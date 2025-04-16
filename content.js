@@ -94,7 +94,7 @@ async function checkStreakStatus(targetUsername) {
                         '#dddfe0',
                         'rgb(235, 237, 238)', // #ebedee 의 RGB 값
                         '#ebedee',
-                        'grey'              // 혹시 모를 경우 대비
+                        'grey'                // 혹시 모를 경우 대비
                         // 필요시 다른 회색 계열 색상 추가
                     ];
 
@@ -175,7 +175,7 @@ async function checkStreakStatus(targetUsername) {
         const { targetUsername } = await chrome.storage.sync.get(['targetUsername']);
 
         if (!targetUsername) {
-            console.log(`[${EXT_NAME}] 확장 프로그램 팝업에서 타겟 사용자명이 설정되지 않았습니다. 검사를 건너<0xEB><0x9C><0x84>니다.`);
+            console.log(`[${EXT_NAME}] 확장 프로그램 팝업에서 타겟 사용자명이 설정되지 않았습니다. 검사를 건너뜁니다.`);
             return;
         }
 
