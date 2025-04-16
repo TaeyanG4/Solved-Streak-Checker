@@ -44,19 +44,19 @@
 ## 스크린샷
 
 * **팝업 - 초기 설정 화면:** 사용자명을 입력하기 전의 모습
-  ![팝업 초기 설정 화면](./readme_images/screenshot_popup_initial.png "팝업 초기 설정 화면")
+    <br><img src="./readme_images/screenshot_popup_initial.png" alt="팝업 초기 설정 화면" title="팝업 초기 설정 화면" width="300">
 
 * **팝업 - 문제 해결 상태:** 가장 최근 활동일에 문제를 푼 것으로 확인된 경우
-  ![팝업 문제 해결 상태](./readme_images/screenshot_popup_solved.png "팝업 문제 해결 상태")
+    <br><img src="./readme_images/screenshot_popup_solved.png" alt="팝업 문제 해결 상태" title="팝업 문제 해결 상태" width="300">
 
 * **팝업 - 문제 미해결 상태:** 가장 최근 활동일에 문제를 풀지 않은 것으로 확인된 경우
-  ![팝업 문제 미해결 상태](./readme_images/screenshot_popup_not_solved.png "팝업 문제 미해결 상태")
+    <br><img src="./readme_images/screenshot_popup_not_solved.png" alt="팝업 문제 미해결 상태" title="팝업 문제 미해결 상태" width="300">
 
 * **팝업 - 상태 모름:** 스트릭 상태를 확인할 수 없는 경우 (프로필 미방문 등)
-  ![팝업 상태 모름](./readme_images/screenshot_popup_unknown.png "팝업 상태 모름")
+    <br><img src="./readme_images/screenshot_popup_unknown.png" alt="팝업 상태 모름" title="팝업 상태 모름" width="300">
 
 * **데스크톱 알림 예시:** '미해결' 또는 '상태 모름' 시 나타나는 알림
-  ![데스크톱 알림 예시](./readme_images/screenshot_notification.png "데스크톱 알림 예시")
+    <br><img src="./readme_images/screenshot_notification.png" alt="데스크톱 알림 예시" title="데스크톱 알림 예시" width="400">
 
 ---
 
