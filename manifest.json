@@ -1,0 +1,38 @@
+{
+    "manifest_version": 3,
+    "name": "Solved Streak Checker",
+    "version": "1.0.0",
+    "description": "지정한 solved.ac 사용자의 스트릭 상태를 확인하고, 풀지 않았을 경우 알림을 표시합니다.",
+    "permissions": [
+      "scripting",
+      "alarms",
+      "notifications",
+      "storage"
+    ],
+    "host_permissions": [
+      "https://solved.ac/profile/*"
+    ],
+    "content_scripts": [
+      {
+        "matches": ["https://solved.ac/profile/*"],
+        "js": ["content.js"],
+        "run_at": "document_idle"
+      }
+    ],
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "16": "images/icon16.png",
+        "48": "images/icon48.png",
+        "128": "images/icon128.png"
+      }
+    },
+    "icons": {
+      "16": "images/icon16.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    },
+    "background": {
+      "service_worker": "background.js"
+    }
+  }

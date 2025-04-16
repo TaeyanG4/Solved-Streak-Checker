@@ -1,0 +1,90 @@
+/* popup.css */
+body {
+    font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+    padding: 15px; width: 310px; font-size: 14px;
+    background-color: #f8f9fa; color: #212529; margin: 0;
+  }
+  .container { display: flex; flex-direction: column; }
+  h1 { font-size: 16px; margin: 0 0 15px 0; text-align: center; color: #495057; }
+
+  /* 상태 표시 영역 */
+  .status-section { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #dee2e6; }
+  .status-box {
+    padding: 12px 15px; margin-bottom: 8px; border: 1px solid #dee2e6; border-radius: 6px;
+    min-height: 45px; display: flex; align-items: center; justify-content: center;
+    text-align: center; font-weight: 500; background-color: #ffffff; white-space: pre-line;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  .status-box .icon { margin-right: 8px; font-size: 18px; line-height: 1; }
+  .status-box.solved { color: #198754; border-color: rgba(25, 135, 84, 0.3); background-color: rgba(25, 135, 84, 0.05); }
+  .status-box.not-solved { color: #dc3545; border-color: rgba(220, 53, 69, 0.3); background-color: rgba(220, 53, 69, 0.05); }
+  .status-box.unknown { color: #6c757d; border-color: #ced4da; background-color: #e9ecef; }
+
+  .streak-count { font-size: 13px; color: #495057; text-align: center; min-height: 1.1em; margin-bottom: 10px; font-weight: 500;}
+  .last-checked { font-size: 11px; color: #adb5bd; text-align: center; min-height: 1em; margin-top: 5px; }
+
+  .status-controls { display: flex; justify-content: space-between; gap: 10px; margin-top: 5px; }
+  .status-controls button {
+      flex: 1; font-size: 12px; padding: 5px 8px; background-color: #6c757d; border-radius: 4px;
+      cursor: pointer; color: white; border: none; transition: background-color 0.2s ease;
+  }
+  .status-controls button:hover:not(:disabled) { background-color: #5a6268; }
+  .status-controls button:disabled { background-color: #adb5bd; cursor: not-allowed; opacity: 0.7; }
+
+  /* 설정 영역 */
+  .settings-section { padding-top: 15px; } /* border-top 제거하고 패딩으로 구분 */
+  .setting-group { margin-bottom: 12px; display: flex; flex-direction: column; }
+  .interval-group { align-items: flex-start; }
+  .interval-group label { margin-bottom: 5px; }
+  .notification-options > label:first-child {
+      margin-bottom: 10px;
+      display: block;
+      font-weight: 500;
+      font-size: 13px;
+      color: #495057;
+   }
+  .notification-options div { display: flex; align-items: center; margin-bottom: 5px; }
+  .notification-options input[type="checkbox"] { margin-right: 6px; cursor: pointer; }
+  .notification-options label { /* 체크박스 옆 레이블 */
+      margin-bottom: 0;
+      font-weight: normal;
+      cursor: pointer;
+      font-size: 14px;
+   }
+
+  label { font-weight: 500; font-size: 13px; color: #495057; cursor: default;}
+  input[type="text"], input[type="number"] {
+    width: 100%; box-sizing: border-box; padding: 8px 10px;
+    border: 1px solid #ced4da; border-radius: 4px; font-size: 14px; margin-bottom: 0;
+  }
+  input[type="number"] { width: 80px; }
+  #saveButton {
+    display: block; width: 100%; padding: 10px 15px; cursor: pointer;
+    background-color: #0d6efd; color: white; border: none; border-radius: 5px;
+    font-size: 14px; font-weight: 500; transition: background-color 0.2s ease; margin-top: 15px;
+  }
+  #saveButton:hover:not(:disabled) { background-color: #0b5ed7; }
+  #saveButton:disabled { background-color: #6c757d; cursor: not-allowed; opacity: 0.7;}
+  #saveStatus { margin-top: 10px; font-size: 12px; text-align: center; min-height: 1.1em; font-weight: 500; }
+
+/* 연락처 및 제작자 정보 푸터 스타일 */
+.footer-info {
+  margin-top: 5px;      /* 바깥 위쪽 여백을 최소화 */
+  padding-top: 2px;      /* 안쪽 위쪽 여백을 최소화 */
+  text-align: center;   /* 텍스트 가운데 정렬 */
+  font-size: 11px;      /* 폰트 크기를 작게 설정 */
+  color: #6c757d;      /* 약간 흐린 색상 */
+}
+
+.footer-info p {
+  margin: 4px 0; /* 문단 위아래 간격 조정 */
+}
+
+.footer-info a {
+  color: #0d6efd; /* 링크 색상 (팝업의 버튼 색상과 유사하게) */
+  text-decoration: none; /* 기본 밑줄 제거 */
+}
+
+.footer-info a:hover {
+  text-decoration: underline; /* 마우스 올리면 밑줄 표시 */
+}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Solved Streak Checker</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Solved Streak Checker</h1>
+
+    <div class="status-section">
+      <div id="statusDisplay" class="status-box">
+        <span class="icon">⏳</span>
+        <span class="text">상태 불러오는 중...</span>
+      </div>
+      <div id="streakCountDisplay" class="streak-count"></div>
+      <div class="status-controls">
+        <button id="refreshButton" title="마지막 저장된 상태 새로고침">🔄 새로고침</button>
+        <button id="profileLinkButton" title="프로필 페이지 열기" disabled>👤 프로필 가기</button>
+      </div>
+      <div id="lastCheckedDisplay" class="last-checked"></div>
+    </div>
+
+    <div class="settings-section">
+      <div class="setting-group">
+        <label for="usernameInput">사용자명:</label>
+        <input type="text" id="usernameInput" placeholder="사용자명을 입력하세요">
+      </div>
+
+      <div class="setting-group interval-group">
+        <label for="intervalInput">알림 주기 (분):</label>
+        <input type="number" id="intervalInput" min="1" value="1">
+      </div>
+
+      <div class="setting-group notification-options">
+        <label>알림 설정:</label> <div>
+          <input type="checkbox" id="notifyNotSolved" checked>
+          <label for="notifyNotSolved">미해결 시 알림</label>
+        </div>
+        <div>
+          <input type="checkbox" id="notifyUnknown" checked>
+          <label for="notifyUnknown">상태 모름 시 알림</label>
+        </div>
+      </div>
+
+      <button id="saveButton">설정 저장</button>
+      <div id="saveStatus"></div>
+    </div>
+
+    <div class="footer-info">
+        <p>
+            버그/문의: <a href="mailto:taeyang95@naver.com" title="taeyang95@naver.com에게 메일 보내기">taeyang95@naver.com</a>
+        </p>
+        <p>
+            Made by <a href="https://github.com/TaeyanG4" target="_blank" rel="noopener noreferrer" title="TaeyanG4 GitHub 프로필 방문">TaeyanG4</a>
+        </p>
+    </div>
+
+  </div> <script src="popup.js"></script>
+</body>
+</html>
