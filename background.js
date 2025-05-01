@@ -7,10 +7,38 @@ const NOTIFICATION_ID = 'solvedacStreakCheckNotification'; // 알림 고유 ID
 const DEFAULT_ALARM_INTERVAL = 1;                   // 기본 알람 주기 (1분)
 // 스토리지 키 정의
 const STORAGE_SYNC_KEYS = ['targetUsername', 'alarmInterval', 'notifyOnNotSolved', 'notifyOnUnknown'];
-const STORAGE_LOCAL_KEYS = ['lastStreakStatus', 'lastStreakCount', 'lastCheckTimestamp'];
+const STORAGE_LOCAL_KEYS = ['lastStreakStatus', 'lastStreakCount', 'lastCheckTimestamp', 'lastResetDate'];
+
+// --- 유틸 함수 ---
+function ymd(d = new Date()) { return d.toISOString().split('T')[0]; }
+
+// --- 초기화 로직 ---
+async function performDailyReset(reason = 'manual/late') {
+    try {
+        await chrome.storage.local.set({
+            lastStreakStatus: null,
+            lastCheckTimestamp: Date.now(),
+            lastResetDate: ymd()
+        });
+        console.log(`[백그라운드] ${reason} 초기화 실행`);
+        await checkStoredStatusAndNotify();
+    } catch (e) {
+        console.error('[백그라운드] 초기화 수행 오류:', e);
+    }
+}
+
+async function ensureDailyReset() {
+    try {
+        const { lastResetDate } = await chrome.storage.local.get(['lastResetDate']);
+        if (lastResetDate !== ymd()) {
+            await performDailyReset('startup-catchup');
+        }
+    } catch (e) {
+        console.error('[백그라운드] 초기화 검사 오류:', e);
+    }
+}
 
 // --- 알람 설정 함수 ---
-
 /**
  * 저장된 설정값(알람 주기)에 따라 주기적 알람(ALARM_NAME)을 생성/교체
  * @param {number | null} [initialDelayMinutes=null] - 첫 알람까지의 지연 시간(분). null이면 기본값(interval) 사용. 0이면 즉시 실행.
@@ -23,17 +51,15 @@ async function setupPeriodicAlarm(initialDelayMinutes = null) {
             interval = DEFAULT_ALARM_INTERVAL;
         }
 
-        // 초기 지연 시간 설정: 파라미터가 null이면 기본값(interval) 사용, 아니면 주어진 값 사용.
-        // 0도 유효한 값으로 처리됩니다.
-        const delay = initialDelayMinutes === null ? interval : initialDelayMinutes;
+        // 주기적 알람 초기화
+        await chrome.alarms.create(ALARM_NAME, {
+            periodInMinutes: interval,
+            delayInMinutes: initialDelayMinutes !== null ? initialDelayMinutes : interval
+        });
 
-        // delayInMinutes는 0 이상이어야 합니다. (음수 방지)
-        const validDelay = Math.max(0, delay);
-
-        await chrome.alarms.create(ALARM_NAME, { delayInMinutes: validDelay, periodInMinutes: interval });
-        console.log(`[백그라운드] 주기적 확인 알람 '${ALARM_NAME}'이 ${interval}분 주기로 설정/재설정됨. (다음 알람 ${validDelay}분 후)`);
+        console.log(`[백그라운드] 주기적 알람 '${ALARM_NAME}'이 ${interval}분 주기로 설정됨.`);
     } catch (error) {
-        console.error("[백그라운드] 주기적 알람 설정 오류:", error);
+        console.error('[백그라운드] 주기적 알람 설정 오류:', error);
     }
 }
 
@@ -42,25 +68,24 @@ async function setupPeriodicAlarm(initialDelayMinutes = null) {
 async function setupDailyResetAlarm() {
     try {
         const now = new Date();
-        const tomorrow = new Date(now);
+        const next = new Date(now);
 
-        // 다음 날 6시로 설정
-        tomorrow.setDate(now.getDate() + 1);
-        tomorrow.setHours(6, 0, 0, 0);
-
-        // 만약 현재 시간이 새벽 6시 이전이면, 오늘 6시로 설정
-        if (now.getHours() < 6) {
-            tomorrow.setDate(now.getDate());
-            tomorrow.setHours(6, 0, 0, 0);
+        // 오늘 06:00
+        next.setHours(6, 0, 0, 0);
+        if (now >= next) {
+            // 이미 지났으면 내일 06:00
+            next.setDate(next.getDate() + 1);
         }
 
-        const nextResetTime = tomorrow.getTime();
+        const nextResetTime = next.getTime();
 
-        // 알람 생성 (when은 밀리초 단위 타임스탬프)
-        await chrome.alarms.create(RESET_ALARM_NAME, { when: nextResetTime });
-        console.log(`[백그라운드] 다음 상태 초기화 알람 '${RESET_ALARM_NAME}'이 ${new Date(nextResetTime).toLocaleString()}에 설정됨.`);
+        await chrome.alarms.create(
+            RESET_ALARM_NAME,
+            { when: nextResetTime, periodInMinutes: 1440 } // 24 h 반복
+        );
+        console.log(`[백그라운드] 상태 초기화 알람 '${RESET_ALARM_NAME}'이 ${new Date(nextResetTime).toLocaleString()}부터 24시간 주기로 설정됨.`);
     } catch (error) {
-        console.error("[백그라운드] 초기화 알람 설정 오류:", error);
+        console.error('[백그라운드] 초기화 알람 설정 오류:', error);
     }
 }
 
@@ -70,6 +95,7 @@ async function setupDailyResetAlarm() {
 chrome.runtime.onInstalled.addListener(async (details) => {
     console.log(`[백그라운드] 확장 프로그램 ${details.reason}됨.`);
     // 기존 알람 모두 제거 후 새로 설정
+    await ensureDailyReset();
     await chrome.alarms.clear(ALARM_NAME);
     await chrome.alarms.clear(RESET_ALARM_NAME);
     // 주기적 알람은 기본값(interval) 지연으로 설정
@@ -80,6 +106,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 // 브라우저 시작 시
 chrome.runtime.onStartup.addListener(async () => {
     console.log("[백그라운드] 브라우저 시작됨.");
+    await ensureDailyReset();
     // 알람이 존재하는지 확인하고 없으면 새로 설정
     const periodicAlarm = await chrome.alarms.get(ALARM_NAME);
     if (!periodicAlarm) {

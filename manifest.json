@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "Solved Streak Checker",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "지정한 solved.ac 사용자의 스트릭 상태를 확인하고, 풀지 않았을 경우 알림을 표시합니다.",
     "permissions": [
       "alarms",
