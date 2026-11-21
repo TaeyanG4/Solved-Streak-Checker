@@ -1,62 +1,153 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>Solved Streak Checker</title>
-<link rel="stylesheet" href="popup.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solved Streak Checker</title>
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Solved Streak Checker</h1>
+  <main class="app">
+    <header class="app-header">
+      <img src="images/icon48.png" alt="" width="22" height="22">
+      <h1>Solved Streak Checker</h1>
+      <span id="handleBadge" class="handle-badge" hidden></span>
+    </header>
 
-    <div class="status-section">
-      <div id="statusDisplay" class="status-box">
-        <span class="icon">⏳</span>
-        <span class="text">상태 불러오는 중...</span>
-      </div>
-      <div id="streakCountDisplay" class="streak-count"></div>
-      <div class="status-controls">
-        <button id="refreshButton" title="마지막 저장된 상태 새로고침">🔄 새로고침</button>
-        <button id="profileLinkButton" title="프로필 페이지 열기" disabled>👤 프로필 가기</button>
-      </div>
-      <div id="lastCheckedDisplay" class="last-checked"></div>
-    </div>
-
-    <div class="settings-section">
-      <div class="setting-group">
-        <label for="usernameInput">사용자명:</label>
-        <input type="text" id="usernameInput" placeholder="사용자명을 입력하세요">
-      </div>
-
-      <div class="setting-group interval-group">
-        <label for="intervalInput">알림 주기 (분):</label>
-        <input type="number" id="intervalInput" min="1" value="1">
-      </div>
-
-      <div class="setting-group notification-options">
-        <label>알림 설정:</label> <div>
-          <input type="checkbox" id="notifyNotSolved" checked>
-          <label for="notifyNotSolved">미해결 시 알림</label>
-        </div>
-        <div>
-          <input type="checkbox" id="notifyUnknown" checked>
-          <label for="notifyUnknown">상태 모름 시 알림</label>
+    <section id="statusCard" class="status-card" data-kind="checking" aria-labelledby="statusTitle">
+      <div class="status-main">
+        <span id="statusIcon" class="status-icon" aria-hidden="true">⏳</span>
+        <!-- 상태가 바뀔 때만 읽어주도록 제목/설명만 live region으로 둔다 -->
+        <div class="status-text" role="status" aria-live="polite" aria-atomic="true">
+          <p id="statusTitle" class="status-title">불러오는 중…</p>
+          <p id="statusDetail" class="status-detail"></p>
         </div>
       </div>
 
-      <button id="saveButton">설정 저장</button>
-      <div id="saveStatus"></div>
-    </div>
+      <dl id="stats" class="stats" hidden>
+        <div class="stat"><dt>현재 스트릭</dt><dd id="currentStreak">-</dd></div>
+        <div class="stat"><dt>최장 스트릭</dt><dd id="maxStreak">-</dd></div>
+        <div class="stat"><dt>오늘 푼 문제</dt><dd id="todaySolved">-</dd></div>
+      </dl>
 
-    <div class="footer-info">
-        <p>
-            버그/문의: <a href="mailto:taeyang95@naver.com" title="taeyang95@naver.com에게 메일 보내기">taeyang95@naver.com</a>
-        </p>
-        <p>
-            Made by <a href="https://github.com/TaeyanG4" target="_blank" rel="noopener noreferrer" title="TaeyanG4 GitHub 프로필 방문">TaeyanG4</a>
-        </p>
-    </div>
+      <ol id="recent" class="recent" aria-label="최근 7일 기록" hidden></ol>
 
-  </div> <script src="popup.js"></script>
+      <ul id="notes" class="notes" hidden></ul>
+
+      <p class="meta">
+        <span id="deadline"></span>
+        <span id="lastChecked"></span>
+      </p>
+    </section>
+
+    <div class="actions">
+      <button id="refreshButton" type="button" class="btn">지금 확인</button>
+      <button id="openButton" type="button" class="btn">solved.ac 열기</button>
+    </div>
+    <button id="snoozeButton" type="button" class="btn btn-quiet" hidden>오늘은 그만 알림</button>
+    <div id="reimport" class="reimport" hidden>
+      <button id="reimportButton" type="button" class="btn" aria-describedby="reimportHint"
+        aria-label="solved.ac 연동 설정 열기(새 탭): 채점 사이트에서 다시 불러오기">채점 사이트에서 다시 불러오기 ↗</button>
+      <p id="reimportHint" class="hint"></p>
+    </div>
+    <button id="openTabButton" type="button" class="btn btn-primary" hidden>새 탭에서 설정하기</button>
+
+    <p id="permissionWarning" class="warning" hidden>
+      데스크톱 알림을 띄우지 못했어요. Chrome과 운영체제의 알림 설정(방해 금지 모드 포함)을 확인해주세요.
+    </p>
+
+    <details id="settings" class="settings">
+      <summary>설정</summary>
+      <form id="settingsForm" novalidate>
+        <div class="field">
+          <label for="handleInput">solved.ac 핸들</label>
+          <input id="handleInput" type="text" autocomplete="off" spellcheck="false"
+                 placeholder="예: Taeyang 또는 프로필 주소" aria-describedby="handleHint legacyHintText">
+          <p id="handleHint" class="hint">프로필 주소 solved.ac/u/<b>핸들</b>의 핸들이에요. 새 solved.ac에서는 백준 아이디와 다를 수 있어요.</p>
+          <div id="legacyHint" class="legacy-hint" hidden>
+            <p id="legacyHintText" class="hint hint-warn"></p>
+            <button id="confirmLegacyButton" type="button" class="btn btn-small">이 아이디가 맞아요</button>
+          </div>
+        </div>
+
+        <fieldset class="field">
+          <legend>solved.ac API 키</legend>
+          <p class="hint" id="apiHint">
+            새 solved.ac API는 앱 등록이 필요해요.
+            <a id="appsLink" href="https://backstage.solved.ac/developer/apps" target="_blank" rel="noopener noreferrer">solved.ac Backstage</a>에서
+            앱을 만들고 클라이언트 ID와 시크릿을 붙여넣어 주세요.
+          </p>
+          <label for="clientIdInput">클라이언트 ID</label>
+          <input id="clientIdInput" type="text" autocomplete="off" spellcheck="false" aria-describedby="apiHint">
+          <label for="clientSecretInput">클라이언트 시크릿</label>
+          <div class="inline">
+            <input id="clientSecretInput" type="password" autocomplete="new-password" spellcheck="false"
+                   aria-describedby="secretHint">
+            <button id="toggleSecret" type="button" class="btn btn-small" aria-controls="clientSecretInput" aria-pressed="false">보기</button>
+          </div>
+          <p id="secretHint" class="hint">시크릿은 이 브라우저에만 저장되고 solved.ac API에만 보내요. 다른 사람과 공유하지 마세요.</p>
+        </fieldset>
+
+        <div class="field">
+          <label for="intervalInput">확인 주기</label>
+          <div class="inline">
+            <input id="intervalInput" type="number" min="1" max="1440" step="1" inputmode="numeric">
+            <span>분마다 확인</span>
+          </div>
+        </div>
+
+        <fieldset class="field">
+          <legend>알림</legend>
+          <label class="check">
+            <input id="notifyUnsolved" type="checkbox">
+            <span>오늘 문제를 풀지 않았으면 알림</span>
+          </label>
+          <div class="sub-fields" id="unsolvedOptions">
+            <label for="notifyStart">알림 시작</label>
+            <select id="notifyStart">
+              <option value="24">하루 종일 (오전 6시부터)</option>
+              <option value="12">마감 12시간 전부터 (오후 6시, 기본)</option>
+              <option value="6">마감 6시간 전부터 (자정)</option>
+              <option value="3">마감 3시간 전부터 (오전 3시)</option>
+              <option value="1">마감 1시간 전부터 (오전 5시)</option>
+            </select>
+            <label for="remindInterval">다시 알림</label>
+            <select id="remindInterval">
+              <option value="0">하루 한 번만</option>
+              <option value="10">10분마다</option>
+              <option value="30">30분마다</option>
+              <option value="60">1시간마다</option>
+              <option value="120">2시간마다</option>
+              <option value="180">3시간마다</option>
+            </select>
+          </div>
+          <label class="check">
+            <input id="notifyError" type="checkbox">
+            <span>설정이 필요하거나 상태를 확인할 수 없을 때 알림</span>
+          </label>
+          <p class="hint">시간은 한국 시간 기준이에요. solved.ac의 하루는 오전 6시에 시작하고 끝나요.</p>
+        </fieldset>
+
+        <button id="saveButton" type="submit" class="btn btn-primary">저장</button>
+        <p id="saveStatus" class="save-status" role="status"></p>
+        <button id="resetButton" type="button" class="btn btn-quiet btn-small" aria-expanded="false" aria-controls="resetConfirm">모든 데이터 지우기</button>
+        <div id="resetConfirm" class="reset-confirm" role="group" aria-labelledby="resetConfirmText" hidden>
+          <p id="resetConfirmText">모든 기기의 동기화 설정(핸들·알림 설정)과 이 기기의 API 키·기록을 지울까요? 되돌릴 수 없어요.
+            solved.ac가 정한 요청 제한 대기 중이라면 남은 대기 기록들(받은 시각·서버 시각·대기 길이·시계 보정량·마지막으로 확인한 시각)만 어느 키였는지 없이 대기가 끝날 때까지 남아요.</p>
+          <div class="reset-actions">
+            <button id="resetCancelButton" type="button" class="btn btn-small">취소</button>
+            <button id="resetConfirmButton" type="button" class="btn btn-small btn-danger">지우기</button>
+          </div>
+        </div>
+      </form>
+    </details>
+
+    <footer class="footer-info">
+      <p>solved.ac의 공식 확장 프로그램이 아니며, solved.ac API를 이용합니다.</p>
+      <p>버그/문의: <a href="mailto:taeyang95@naver.com">taeyang95@naver.com</a></p>
+      <p>Made by <a href="https://github.com/TaeyanG4" target="_blank" rel="noopener noreferrer">TaeyanG4</a> · <span id="version"></span></p>
+    </footer>
+  </main>
+  <script type="module" src="popup.js"></script>
 </body>
 </html>
