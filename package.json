@@ -1,0 +1,16 @@
+{
+  "name": "solved-streak-checker",
+  "version": "2.0.0",
+  "private": true,
+  "description": "solved.ac 스트릭 알림 Chrome 확장 프로그램 (개발/테스트용 메타데이터)",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test \"tests/**/*.test.js\"",
+    "test:e2e": "python -I tests/e2e/run_e2e.py",
+    "package": "python -I scripts/package.py"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

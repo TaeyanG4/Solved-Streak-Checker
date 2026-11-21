@@ -1,37 +1,41 @@
 {
-    "manifest_version": 3,
-    "name": "Solved Streak Checker",
-    "version": "1.0.2",
-    "description": "지정한 solved.ac 사용자의 스트릭 상태를 확인하고, 풀지 않았을 경우 알림을 표시합니다.",
-    "permissions": [
-      "alarms",
-      "notifications",
-      "storage"
-    ],
-    "host_permissions": [
-      "https://solved.ac/profile/*"
-    ],
-    "content_scripts": [
-      {
-        "matches": ["https://solved.ac/profile/*"],
-        "js": ["content.js"],
-        "run_at": "document_idle"
-      }
-    ],
-    "action": {
-      "default_popup": "popup.html",
-      "default_icon": {
-        "16": "images/icon16.png",
-        "48": "images/icon48.png",
-        "128": "images/icon128.png"
-      }
-    },
-    "icons": {
+  "manifest_version": 3,
+  "name": "Solved Streak Checker",
+  "version": "2.0.0",
+  "description": "solved.ac 공식 API로 스트릭을 확인하고, 오늘 문제를 풀지 않았다면 마감(오전 6시) 전에 알려줍니다. (비공식 확장)",
+  "minimum_chrome_version": "116",
+  "permissions": ["alarms", "notifications", "storage"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; form-action 'none'; base-uri 'none'"
+  },
+  "host_permissions": ["https://solved.ac/*"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://solved.ac/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "options_ui": {
+    "page": "popup.html",
+    "open_in_tab": true
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Solved Streak Checker",
+    "default_icon": {
       "16": "images/icon16.png",
       "48": "images/icon48.png",
       "128": "images/icon128.png"
-    },
-    "background": {
-      "service_worker": "background.js"
     }
+  },
+  "icons": {
+    "16": "images/icon16.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
   }
+}
